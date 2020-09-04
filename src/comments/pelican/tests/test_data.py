@@ -52,3 +52,41 @@ def test_load_comment_typical(fake_comments):
     assert comment.metadata['author'] == 'Jenifer Forcythe'
     
     assert comment.content == "<h1>Hello World</h1>\n<p>This is an example comment. It's formatted as markdown. It should <em>parse</em> properly.</p>"
+    
+    
+def test_save_thread_typical(fake_comments, fixed_seed):
+        """
+        Create a new thread, add a few comments, and save it.
+        """
+        thread = data.Thread("test-99", COMMENTS_PATH=fake_comments)
+
+        comment1 = thread.add()
+        comment1.save(f"# First Top Comment {comment1.uid}")
+
+        comment2 = thread.add(1, parent=comment1.uid)
+        comment2.save(f"# First reply to {comment1.uid}, {comment2.uid}")
+
+        comment3 = thread.add(1, parent=comment1.uid)
+        comment3.save(f"# Second reply to {comment1.uid}, {comment3.uid}")
+
+        comment4 = thread.add(1, parent=comment1.uid)
+        comment4.save(f"# Third reply to {comment1.uid}, {comment4.uid}")
+
+        comment5 = thread.add(1, parent=comment1.uid)
+        comment5.save(f"# Fourth reply to {comment1.uid}, {comment5.uid}")
+
+        comment6 = thread.add(2, parent=comment2.uid)
+        comment6.save(f"# First reply to {comment2.uid}, {comment6.uid}")
+
+        comment7 = thread.add(order=20)
+        comment7.save(f"# Second Top Comment, {comment7.uid}")
+
+        comment8 = thread.add(order=12)
+        comment8.save(f"# Third Top Comment, {comment8.uid}")
+
+        thread.save()
+
+        with open(thread.thread_path, "r") as fp:
+            content = fp.read()
+
+       assert content == ""
